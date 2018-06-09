@@ -83,7 +83,7 @@
 		<!-- <div class="playlist-wrapper"> -->
 		<playlist ref="playlist"></playlist>
 		<!-- </div> -->
-		<audio ref="audio" src="http://fs.open.kugou.com/0b2fa4d3fc713843bbaef33fdc9ec525/5b1602f2/G009/M04/05/1D/SQ0DAFUOItmAOAkyAD3sWO7ytSw349.mp3" @play="ready" @error="error" @timeupdate="updateTime" @ended="ended"></audio>
+		<audio ref="audio" src="http://dl.stream.qqmusic.qq.com/C400002MPYSq3TdCOS.m4a?vkey=C9AC473DCCBC5D09629AD8011CB950767EF0EB7ECF730363363C04FC9C1F64791C201AE7E1D2B3A6605D8BCF4AB80A15A52F2EBE257F4505&guid=6538918968&uin=1027106581&fromtag=66" @play="ready" @error="error" @timeupdate="updateTime" @ended="ended"></audio>
 	</div>
 </template>
 <script>
@@ -224,8 +224,20 @@
 			ended() {
 				let index = this.currentIndex >= this.playlist.length ? 0 : this.currentIndex + 1;
 				console.log(index)
-				this.setCurrentIndex(this.currentIndex + 1)
+				if(this.mode == playMode.loop) {
+					this.loop()
+				} else {
+				    this.setCurrentIndex(this.currentIndex + 1)
+				}
 			},
+			loop() {
+		        this.$refs.audio.currentTime = 0
+		        this.$refs.audio.play()
+		        this.setPlayState(true)
+		        if (this.currentLyric) {
+		          this.currentLyric.seek(0)
+		        }
+		      },
 			updateTime(e) {
 				this.currentTime = e.target.currentTime;
 				let duration = this.currentSong.duration;
@@ -294,8 +306,8 @@
 				} else {
 					list = [...this.sequenceList];
 				}
-				this.setPlaylist(list);
 				this.setIndex(list);
+				this.setPlaylist(list);
 			},
 			setIndex(list) {
 				let index = list.findIndex((val) => {
@@ -414,7 +426,6 @@
 		},
 		watch: {
 			currentSong(newSong, oldSong) {
-				console.log(newSong)
 				if(!newSong.id) {
 					return;
 				}
