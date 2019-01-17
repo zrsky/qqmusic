@@ -3,6 +3,9 @@
 		<div class="h-Wrapper">
 			<div class="bgImg"></div>
 			<h1 class="text">Chicken Music</h1>
+			<router-link class="user" tag="div" to="/myHome">
+				<i class="icon-mine"></i>
+			</router-link>
 		</div>
 		<tab></tab>
 	</div>
@@ -43,4 +46,12 @@
 			vertical-align: top
 			line-height: 44px
 			margin: 0
+		.user
+			.icon-mine
+				position absolute
+				top: 12px
+				right: 10px
+				// background: red
+				color: #ffcd32
+				font-size: 20px
 </style>

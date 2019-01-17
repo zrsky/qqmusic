@@ -62,7 +62,7 @@
 				}
 				this.page = 1;
 				search(this.query, this.page, this.zhida, PERPAGE).then((res) => {
-					this.result = res.data.song.list > 0 ? true : false;
+					this.result = res.data.song && res.data.song.list > 0 ? true : false;
 					this.songs = this._genResult(res.data);
 					this.check = this.checkMore(res.data.song);
 				})

@@ -39,5 +39,10 @@ li {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;*/
+  position: fixed;
+  width: 100%;
+  background: #222;
+  top: 0;
+  bottom: 0;
 }
 </style>

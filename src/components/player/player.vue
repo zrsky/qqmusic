@@ -55,7 +55,7 @@
 					<div class="icon i-left"><i @click="prev" class="icon-prev"></i></div>
 					<div class="icon i-center"><i :class="iconPlay" @click="play"></i></div>
 					<div @click="next" class="icon i-right"><i class="icon-next"></i></div>
-					<div class="icon i-right"><i class="icon-not-favorite"></i></div>
+					<div class="icon i-right" @click="changeFavorite(currentSong)"><i :class="getFavoriteIcon(currentSong)"></i></div>
 				</div>
 			</div>
 			</div>
@@ -87,7 +87,7 @@
 	</div>
 </template>
 <script>
-	import {mapGetters, mapMutations} from 'vuex'
+	import {mapGetters, mapMutations, mapActions} from 'vuex'
 	import animations from 'create-keyframe-animation'
 	import progressCircle from 'base/progress-circle/progress-circle'
 	import {playMode} from 'common/js/config'
@@ -97,9 +97,11 @@
 	import {Lyric} from 'common/js/lyric'
 	import Scroll from 'base/scroll/scroll'
 	import playlist from 'components/playlist/playlist'
+	import {playerMixin} from 'common/js/mixin'
 
 	const progressBarWidth = 16;
 	export default {
+		mixins: [playerMixin],
 		data() {
 			return {
 				currentTime: '0:00',
@@ -108,7 +110,8 @@
 				currentLyric: null,
 				lineNum: 0,
 				playLylic: '',
-				currentShow: 'cd'
+				currentShow: 'cd',
+				// isFavorite: false,
 			}
 		},
 		computed: {
@@ -119,7 +122,8 @@
 				'playing',
 				'currentIndex',
 				'mode',
-				'sequenceList'
+				'sequenceList',
+				'favoriteList'
 			]),
 			iconPlay() {
 				return this.playing ? 'icon-pause' : 'icon-play';
@@ -135,13 +139,43 @@
 			},
 			playIcon() {
 				return this.mode == playMode.sequence ? 'icon-sequence' : this.mode == playMode.loop ? 'icon-loop' : 'icon-random';
-			}
+			},
+			// iconFavorite() {
+			// 	return this.isFavorite === true ? 'icon-favorite' : 'icon-not-favorite';
+			// }
 		},
 		created() {
 			this.touch = {};
 			this.middleTouch = {};
 		},
+		mounted() {
+			
+			console.log(this.favoriteList)
+		},
  		methods: {
+			// showFavorite() {
+			// 	if(this.favoriteList.length === 0) return;
+			// 	var index = this.favoriteList.findIndex((item) => {
+			// 		return item.id === this.currentSong.id
+			// 	})
+			// 	if(index > -1) {
+			// 		this.isFavorite = true;
+			// 	}else{
+			// 		this.isFavorite = false;
+			// 	}
+			// },
+			// changeFavorite() {
+			// 	this.isFavorite = !this.isFavorite;
+			// 	if(this.isFavorite === true) {
+			// 		this.saveFavoriteList(this.currentSong);
+			// 	}else{
+			// 		this.deleteFavoriteList(this.currentSong);
+			// 	}
+			// },
+			// savePlayHistory() {
+			// 	console.log()
+			// 	this.savePlayHistory(this.currentSong);
+			// },
 			back() {
 				this.setFullScreen(false);
 			},
@@ -186,7 +220,6 @@
 				this.$refs.cdWrapper.style.transform = "";
 			},
 			play() {
-				console.log(this.currentIndex)
 				this.setPlayState(!this.playing);
 				if(this.currentLyric) {
 					this.currentLyric.togglePlay()
@@ -223,7 +256,6 @@
 			},
 			ended() {
 				let index = this.currentIndex >= this.playlist.length ? 0 : this.currentIndex + 1;
-				console.log(index)
 				this.setCurrentIndex(this.currentIndex + 1)
 			},
 			updateTime(e) {
@@ -288,14 +320,15 @@
 				num = (num + 1) % 3;
 				this.setPlayMode(num);
 				let list = null;
-				let sequenceList = [...this.sequenceList];
+				let sequenceList = this.sequenceList;
 				if(num === playMode.random) {
 					list = shuffle(sequenceList);
 				} else {
-					list = [...this.sequenceList];
+					list = this.sequenceList;
 				}
-				this.setPlaylist(list);
 				this.setIndex(list);
+				this.setPlaylist(list);
+				
 			},
 			setIndex(list) {
 				let index = list.findIndex((val) => {
@@ -410,11 +443,15 @@
 				setCurrentIndex: 'SET_CURRENT_INDEX',
 				setPlayMode: 'SET_PLAY_MODE',
 				setPlaylist: 'SET_PLAYLIST'
-			})
+			}),
+			...mapActions([
+				'saveFavoriteList',
+				'deleteFavoriteList',
+				'savePlayHistory'
+			])
 		},
 		watch: {
 			currentSong(newSong, oldSong) {
-				console.log(newSong)
 				if(!newSong.id) {
 					return;
 				}
@@ -429,6 +466,8 @@
 					this.$refs.audio.play();
 					this.getLyric();
 				})
+				// this.showFavorite();
+				this.savePlayHistory(newSong);
 			},
 			playing(newPlaying) {
 				const audio = this.$refs.audio;
@@ -627,6 +666,8 @@
 	        font-size: 30px
 	        &.disable
 	          color: #ccc
+					.icon-favorite
+						color: red
 	  &.normal-enter-active, &.normal-leave-active
 	    transition: all .4s
 	    .top, .bottom

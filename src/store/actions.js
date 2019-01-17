@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/utils'
-import {saveSearch, deleteSearch, clearSearch} from 'common/js/cache'
+import {saveSearch, deleteSearch, clearSearch, saveFavorite, deleteFavorite, loadFavorite, savePlay, loadPlay} from 'common/js/cache'
 
 function findIndex(arr,song) {
 	return arr.findIndex((item) => {
@@ -19,6 +19,16 @@ export const selectPlay = function({commit, state}, {list, index}) {
 	commit(types.SET_CURRENT_INDEX, index)
 	commit(types.SET_FULL_SCREEN, true)
 	commit(types.SET_PLAYING_STATE, true)
+}
+export const randomPlay = function({commit, state}, {list}) {
+	commit(types.SET_PLAY_MODE, playMode.random);
+	let randomList = shuffle(list);
+	commit(types.SET_SEQUENCE_LIST, list);
+	commit(types.SET_PLAYLIST, randomList);
+	commit(types.SET_FULL_SCREEN, true);
+	commit(types.SET_CURRENT_INDEX, 0);
+	commit(types.SET_PLAYING_STATE, true);
+
 }
 export const insertSong = function({commit, state}, song) {
 	let playlist = [...state.playlist];
@@ -67,6 +77,26 @@ export const deleteSearchHistory = function ({commit}, query) {
 
 export const clearSearchHistory = function ({commit}) {
   commit(types.SET_SEARCH_HISTORY, clearSearch())
+}
+
+export const saveFavoriteList = function({commit}, song) {
+	commit(types.SET_FAVORITE_LIST, saveFavorite(song));
+}
+
+export const deleteFavoriteList = function({commit}, song) {
+	commit(types.SET_FAVORITE_LIST, deleteFavorite(song));
+}
+
+export const loadFavoriteList = function({commit}) {
+	commit(types.SET_FAVORITE_LIST, loadFavorite());
+}
+
+export const savePlayHistory = function({commit}, song) {
+	commit(types.SET_PLAY_HISTORY, savePlay(song));
+}
+
+export const loadPlayHistory = function({commit}) {
+	commit(types.SET_PLAY_HISTORY, loadPlay());
 }
 
 export const deleteOneSong = function ({commit, state}, song) {

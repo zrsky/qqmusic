@@ -17,8 +17,8 @@
 							<li :key="song.id" class="item" ref="item" v-for="(song,index) in playlist" @click="selectItem(song,index)">
 								<i class="current" :class="iconPlay(song)"></i>
 								<span class="text">{{song.name}}</span>
-								<span class="like">
-									<i class="icon-not-favorite"></i>
+								<span class="like" @click.stop="changeFavorite(song)">
+									<i :class="getFavoriteIcon(song)"></i>
 								</span>
 								<span class="delete" @click.stop="deleteOne(song)">
 									<i class="icon-delete"></i>
@@ -46,11 +46,13 @@
 	import Scroll from 'base/scroll/scroll'
 	import confirm from 'base/confirm/confirm'
 	import {playMode} from 'common/js/config'
+	import {playerMixin} from 'common/js/mixin'
 
 	export default {
+		mixins: [playerMixin],
 		data() {
 			return {
-				showFlag: false
+				showFlag: false,
 			}
 		},
 		computed: {
@@ -62,7 +64,7 @@
 				]),
 			modeText() {
 		        return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
-		     }
+			}
 		},
 		methods: {
 			deleteOne(song) {
@@ -93,7 +95,8 @@
 			scrollCurrentIndex(current) {
 				let index = this.playlist.findIndex((song) => {
 		          return current.id === song.id
-		        })
+						})
+						console.log(index)
 				this.$refs.scroll.scrollToElement(this.$refs.scroll.$el.children[0].children[index],300)
 			},
 			iconPlay(song) {
@@ -104,7 +107,7 @@
 				setTimeout(() => {
 					this.refresh();
 					this.scrollCurrentIndex(this.currentSong);
-				}, 20)
+				}, 50)
 			},
 			hide() {
 				this.showFlag = false;
@@ -213,6 +216,8 @@
 	      margin-right: 15px
 	      font-size: 12px
 	      color: #ffcd32
+				.icon-favorite
+					color: red
 	    .delete
 	      position: relative
 	      font-size: 12px

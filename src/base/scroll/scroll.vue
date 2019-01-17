@@ -89,14 +89,14 @@
 				this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
 			},
 			scrollToElement() {
-				this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
+				this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
 			}
 		},
 		watch: {
 			data(newVal,oldVal) {
-				if(this.$refs.scrollWrapper && !this.scroll) {
-					this._initScroll();
-				}
+				// if(this.$refs.scrollWrapper && !this.scroll) {
+				// 	this._initScroll();
+				// }
 				setTimeout(() => {
 		          this.refresh()
 		        }, this.refreshDelay)

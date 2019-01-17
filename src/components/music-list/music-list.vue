@@ -6,7 +6,7 @@
 		<h1 class="title" v-html="title"></h1>
 		<div class="bg-image" :style="bgStyle" ref="bgImage">
 			<div class="play-wrapper" ref="play">
-				<div class="play">
+				<div class="play" @click="random">
 					<i class="icon-play"></i>
 					<span class="text">随机播放全部</span>
 				</div>
@@ -24,7 +24,9 @@
 	import scroll from "base/scroll/scroll";
 	import songList from "base/song-list/song-list";
 	import loading from "base/loading/loading";
-	import {mapActions} from "vuex";
+	import {mapActions, mapMutations, mapGetters} from "vuex";
+	import { playMode } from 'common/js/config';
+	import { shuffle } from 'common/js/utils';
 	// import {playlistMixin} from 'common/js/mixin';
 
 	const TOP_HEIGHT = 40;
@@ -61,9 +63,27 @@
 		computed: {
 			bgStyle() {
 				return `background-image:url(${this.bgImage})`
-			}
+			},
+			...mapGetters([
+				'sequenceList',
+				'currentSong',
+				'currentIndex'
+			])
 		},
 		methods: {
+			random() {
+				this.randomPlay({
+					list: this.songs
+				});
+			},
+			setIndex(list) {
+				if(Object.keys(this.currentSong).length === 0) return;
+				let index = list.findIndex((item) => {
+					return item.id === this.currentSong.id;
+				});
+				console.log(index)
+				this.setCurrentIndex(index);
+			},
 			back() {
 				this.$router.back();
 			},
@@ -80,11 +100,18 @@
 			// 	console.log('playlist: '+playlist)
 			// 	const bottom = playlist.length > 0 ? 80 : '';
 			// 	console.log(bottom)
+			// 	this.$refs.list.$el.style.top = 0;
 			// 	this.$refs.list.$el.style.bottom = `${bottom}px`;
 			// 	this.$refs.list.refresh();
 			// },
+			...mapMutations({
+				setPlayMode:'SET_PLAY_MODE',
+				setPlayList: 'SET_PLAYLIST',
+				setCurrentIndex: 'SET_CURRENT_INDEX'
+			}),
 			...mapActions([
-				  'selectPlay'
+				  'selectPlay',
+				  'randomPlay'
 				])
 		},
 		components: {
